@@ -43,12 +43,13 @@ unless node['mdadm']['devices'].nil? && node['mdadm']['devices'].empty?
           end
         end
       end
-      cmdline = values['options'].map do |v, k|
-        if v.length > 1
-        then "--#{v} #{k}"
-        else "-#{v} #{k}"
+      cmdline = values['options'].map do |k, v|
+        if k.length > 1
+        then "--#{k} #{v}"
+        else "-#{k} #{v}"
         end
       end
+      cmdline = cmdline.join(' ')
       ruby_block "mdadm --create /dev/md/#{name} #{cmdline} #{devices}" do
         block do
           mdadm = Mixlib::ShellOut.new("mdadm --create #{name} #{cmdline} #{devices}")
