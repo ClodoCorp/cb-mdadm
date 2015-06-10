@@ -16,7 +16,7 @@ template '/etc/mdadm/mdadm.conf' do
   not_if { node['mdadm']['conf'].nil? || node['mdadm']['conf'].empty? }
 end
 
-unless node['mdadm']['devices'].nil? && node['mdadm']['devices'].empty?
+unless node['mdadm']['devices'].nil? || node['mdadm']['devices'].empty?
   case node['mdadm']['devices']
   when Hash, Mash
     node['mdadm']['devices'].each do |name, values|
