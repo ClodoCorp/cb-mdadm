@@ -1,0 +1,12 @@
+<% @variables.keys.each do |section| -%>
+<%= "#{section} {" %>
+<% @variables[section].each do |k, v| -%>
+<% next if v.nil? -%>
+<% if v.is_a?(String) -%>
+<%= "  #{k} = \"#{v}\"" %>
+<% else -%>
+<%= "  #{k} = #{v}" %>
+<% end -%>
+<% end -%>
+<%= "}\n" %>
+<% end -%>
