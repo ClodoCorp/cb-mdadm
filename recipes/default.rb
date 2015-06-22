@@ -21,42 +21,24 @@ unless node['mdadm']['devices'].nil? || node['mdadm']['devices'].empty?
   when Hash, Mash
     node['mdadm']['devices'].each do |name, values|
       next if values.nil? || values.empty?
-      blkdevs = []
-      devices = []
-      Dir.foreach('/dev') do |f|
-        n = File.realpath(File.join('/dev', f))
-        blkdevs |= [n] if File.blockdev?(n)
-      end
-      patterns = values['devices']
-      patterns.each do |pattern|
-        pattern.each do |str, action|
-          re = Regexp.new(str)
-          blkdevs.each do |blkdev|
-            re.match(blkdev) do
-              case action
-              when 'accept'
-                devices |= [blkdev]
-              when 'reject'
-                devices.delete(blkdev)
-              end
-            end
-          end
-        end
-      end
       cmdline = values['options'].map do |k, v|
         if k.length > 1
-        then "--#{k} #{v}"
-        else "-#{k} #{v}"
+          "--#{k} #{v}"
+        else
+          "-#{k} #{v}"
         end
       end
       cmdline = cmdline.join(' ')
-      ruby_block "mdadm --create /dev/md/#{name} #{cmdline} #{devices}" do
-        block do
-          mdadm = Mixlib::ShellOut.new("mdadm --create #{name} #{cmdline} #{devices}")
-          puts mdadm.stdout
-          puts mdadm.stderr
-          mdadm.error!
-        end
+      if values['options']['raid-devices'].nil?
+        cmdline = "#{cmdline} --raid-devices=#{values['device'].count}"
+      end
+      if values['options']['metadata'].nil?
+        cmdline = "#{cmdline} --metadata=1.2"
+      end
+
+      execute "mdadm --create /dev/md/#{name} #{cmdline} #{values['device'].join(' ')}" do
+        command "mdadm --create #{name} #{cmdline} #{values['device'].join(' ')}"
+        not_if { ::File.exist?("/dev/md/#{name}") }
       end
     end
   end
