@@ -10,7 +10,9 @@ template '/etc/mdadm/mdadm.conf' do
   source 'mdadm.conf.erb'
   owner 'root'
   mode 0644
-  variables(variables: node['mdadm']['conf'])
+  variables(
+    :config => mash_to_mdadmconf(node['mdadm']['conf'])
+  )
   action :create
   notifies :start, 'service[mdadm]', :delayed
   not_if { node['mdadm']['conf'].nil? || node['mdadm']['conf'].empty? }
