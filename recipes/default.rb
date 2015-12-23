@@ -2,7 +2,7 @@ node['mdadm']['packages'].each do |pkg|
   package pkg
 end
 
-service 'mdadm' do
+service 'mdadm-raid' do
   action :nothing
 end
 
@@ -14,7 +14,7 @@ template '/etc/mdadm/mdadm.conf' do
     :config => mash_to_mdadmconf(node['mdadm']['conf'])
   )
   action :create
-  notifies :start, 'service[mdadm]', :delayed
+  notifies :start, 'service[mdadm-raid]', :immediately
   not_if { node['mdadm']['conf'].nil? || node['mdadm']['conf'].empty? }
 end
 
