@@ -2,11 +2,11 @@ node['mdadm']['packages'].each do |pkg|
   package pkg
 end
 
-service 'mdadm-raid' do
+service node['mdadm'['service_name'] do
   action :nothing
 end
 
-template '/etc/mdadm/mdadm.conf' do
+template node['mdadm']['config_file'] do
   source 'mdadm.conf.erb'
   owner 'root'
   mode 0644
@@ -14,7 +14,7 @@ template '/etc/mdadm/mdadm.conf' do
     :config => mash_to_mdadmconf(node['mdadm']['conf'])
   )
   action :create
-  notifies :start, 'service[mdadm-raid]', :immediately
+  notifies :start, "service[#{node['mdadm']['service_name']}]", :immediately
   not_if { node['mdadm']['conf'].nil? || node['mdadm']['conf'].empty? }
 end
 
