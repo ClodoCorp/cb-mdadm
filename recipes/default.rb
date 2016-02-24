@@ -2,7 +2,7 @@ node['mdadm']['packages'].each do |pkg|
   package pkg
 end
 
-service node['mdadm'['service_name'] do
+service node['mdadm']['service_name'] do
   action :nothing
 end
 
