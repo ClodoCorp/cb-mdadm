@@ -38,9 +38,10 @@ unless node['mdadm']['devices'].nil? || node['mdadm']['devices'].empty?
         cmdline = "#{cmdline} --metadata=1.2"
       end
 
-      execute "mdadm --create /dev/md/#{name} #{cmdline} #{values['device'].join(' ')}" do
-        command "mdadm --create #{name} #{cmdline} #{values['device'].join(' ')}"
+      execute "mdadm --create /dev/md/#{name} --name=#{name} #{cmdline} #{values['device'].join(' ')}" do
+        command "mdadm --create #{name} --name=#{name} #{cmdline} #{values['device'].join(' ')}"
         not_if { ::File.exist?("/dev/md/#{name}") }
+        not_if { ::File.exist?("/dev/#{name}") }
       end
     end
   end
